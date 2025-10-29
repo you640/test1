@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .phd-button {
+        @apply 
+            inline-block 
+            relative 
+            overflow-hidden 
+            cursor-pointer
+            select-none
+            bg-gold 
+            text-brand-dark 
+            font-bold 
+            py-3 
+            px-8 
+            rounded-full 
+            text-lg;
+        
+        /* 
+         * PERFORMANCE: Promote to a new composite layer for smoother animations.
+         * This prevents the browser from having to repaint other elements during transform.
+        */
+        transform: translateZ(0);
+
+        /* 
+         * TRANSITION: Define a single, hardware-accelerated transition for transform and box-shadow.
+         * Using the premium easing curve for a luxurious feel.
+        */
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .phd-button:hover {
+        @apply shadow-gold-aura;
+        /* HOVER EFFECT: Subtle scale-up for a responsive feel, using transform for performance. */
+        transform: scale(1.03) translateZ(0);
+    }
+
+    .ripple-effect {
+        @apply 
+            absolute 
+            rounded-full 
+            bg-gold/70 
+            pointer-events-none;
+        
+        /* Center the ripple on its origin point */
+        transform: translate(-50%, -50%); 
+        
+        /* PERFORMANCE: Hint to the browser which properties will change to optimize rendering. */
+        will-change: transform, opacity;
+    }
+}

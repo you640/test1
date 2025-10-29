@@ -1,0 +1,7 @@
+{
+  "name": "ZALOHA - Copy of PAPI Hair Design Studio",
+  "description": "A comprehensive PWA for PAPI Hair Design Studio, featuring client booking, a gallery, service information, an admin dashboard for salon management, and a virtual hairstyle try-on feature powered by AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
