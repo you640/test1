@@ -60,10 +60,11 @@ const VirtualTryOn: React.FC = () => {
     useEffect(() => {
         const createFaceLandmarker = async () => {
             try {
-                const vision = await window.FilesetResolver.forVisionTasks(
+                // The vision library is attached to window.tasks.vision
+                const vision = await window.tasks.vision.FilesetResolver.forVisionTasks(
                     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
                 );
-                faceLandmarker.current = await window.FaceLandmarker.createFromOptions(vision, {
+                faceLandmarker.current = await window.tasks.vision.FaceLandmarker.createFromOptions(vision, {
                     baseOptions: {
                         modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
                         delegate: "GPU",
