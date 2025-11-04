@@ -23,6 +23,7 @@ const InitialState: React.FC<{ onStart: () => void; isModelLoading: boolean; }> 
             <>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gold mx-auto"></div>
                 <p className="mt-4 text-gold">Načítavam AI model...</p>
+                <p className="text-sm text-brand-light/60">Toto môže chvíľu trvať.</p>
             </>
         ) : (
             <>
@@ -69,46 +70,46 @@ const VirtualTryOn: React.FC = () => {
 
     // --- INICIALIZÁCIA MEDIAPIPE MODELU ---
     useEffect(() => {
-        const initMediaPipe = async () => {
+        let visionLoaderInterval: number | undefined;
+
+        const initializeFaceLandmarker = async () => {
             try {
-                // Poll for the MediaPipe library to be loaded on the window object
-                if (window.tasks && window.tasks.vision) {
-                    const vision = await window.tasks.vision.FilesetResolver.forVisionTasks(
-                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-                    );
-                    faceLandmarker.current = await window.tasks.vision.FaceLandmarker.createFromOptions(vision, {
-                        baseOptions: {
-                            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
-                            delegate: "GPU",
-                        },
-                        outputFaceBlendshapes: false,
-                        outputFacialTransformationMatrixes: false,
-                        runningMode: "VIDEO",
-                        numFaces: 1,
-                    });
-                    console.log("Face Landmarker created successfully");
-                    setIsModelLoading(false);
-                } else {
-                    setTimeout(initMediaPipe, 100);
-                }
+                const vision = await window.tasks.vision.FilesetResolver.forVisionTasks(
+                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+                );
+                faceLandmarker.current = await window.tasks.vision.FaceLandmarker.createFromOptions(vision, {
+                    baseOptions: {
+                        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+                        delegate: "GPU",
+                    },
+                    outputFaceBlendshapes: false,
+                    outputFacialTransformationMatrixes: false,
+                    runningMode: "VIDEO",
+                    numFaces: 1,
+                });
+                console.log("Face Landmarker created successfully");
+                setIsModelLoading(false);
             } catch (e) {
                 console.error("Failed to create Face Landmarker:", e);
-                setError("Nepodarilo sa načítať AI model pre detekciu tváre.");
+                setError("Nepodarilo sa načítať AI model. Skúste prosím obnoviť stránku.");
                 setCameraStatus('error');
                 setIsModelLoading(false);
             }
         };
 
-        initMediaPipe();
+        // Poll until the MediaPipe vision library is available on the window object.
+        visionLoaderInterval = window.setInterval(() => {
+            if (window.tasks && window.tasks.vision) {
+                clearInterval(visionLoaderInterval);
+                initializeFaceLandmarker();
+            }
+        }, 300);
 
         return () => {
             // Cleanup on unmount
-            if (animationFrameId.current) {
-                cancelAnimationFrame(animationFrameId.current);
-            }
-            if (faceLandmarker.current?.close) {
-                faceLandmarker.current.close();
-            }
+            if (visionLoaderInterval) clearInterval(visionLoaderInterval);
+            if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
+            if (faceLandmarker.current?.close) faceLandmarker.current.close();
         };
     }, []);
 
@@ -161,6 +162,8 @@ const VirtualTryOn: React.FC = () => {
 
 
     const startCamera = useCallback(async (modeOverride?: FacingMode) => {
+        if (isModelLoading) return; // Prevent starting camera if model is still loading
+
         if (videoRef.current && videoRef.current.srcObject) {
             const stream = videoRef.current.srcObject as MediaStream;
             stream.getTracks().forEach(track => track.stop());
@@ -187,7 +190,7 @@ const VirtualTryOn: React.FC = () => {
             setError("Nepodarilo sa získať prístup ku kamere. Skontrolujte povolenia v prehliadači.");
             setCameraStatus('error');
         }
-    }, [facingMode, predictWebcam]);
+    }, [facingMode, predictWebcam, isModelLoading]);
     
     const stopCamera = useCallback(() => {
         if (animationFrameId.current) {
@@ -215,7 +218,16 @@ const VirtualTryOn: React.FC = () => {
             startCamera();
         }
     };
-
+    
+    const handleRetry = () => {
+        // If the error was about the camera, just try starting it again.
+        // Otherwise (model loading error), reload the page.
+        if (error && error.toLowerCase().includes('kamera')) {
+            startCamera();
+        } else {
+            window.location.reload();
+        }
+    };
 
     return (
         <div className="container mx-auto p-4 md:p-8 flex flex-col items-center">
@@ -242,7 +254,7 @@ const VirtualTryOn: React.FC = () => {
                     
                     {cameraStatus === 'initial' && <InitialState onStart={startCamera} isModelLoading={isModelLoading} />}
                     {cameraStatus === 'loading' && <LoadingState />}
-                    {cameraStatus === 'error' && error && <ErrorState message={error} onRetry={() => window.location.reload()} />}
+                    {cameraStatus === 'error' && error && <ErrorState message={error} onRetry={handleRetry} />}
                 </div>
                 
                  <div className="w-full mt-4 flex justify-center space-x-4">

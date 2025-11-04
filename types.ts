@@ -64,6 +64,6 @@ export interface WpService {
   post_desc: string;
   post_category: string;
   post_subcategory: string;
-  post_price: string;
-  post_duration: string;
+  post_price: number; // Changed from string to number
+  post_duration: number; // Changed from string to number
 }

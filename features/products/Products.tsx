@@ -23,7 +23,10 @@ const Pricelist: React.FC = () => {
                 }
                 const data: WpService[] = await response.json();
 
-                const filteredData = data.filter(service => service.post_title && service.post_price);
+                // Make filtering more robust: check for title and that price is a number (not null/undefined)
+                const filteredData = data.filter(service => 
+                    service.post_title && typeof service.post_price === 'number'
+                );
 
                 const grouped = filteredData.reduce<GroupedServices>((acc, service) => {
                     const category = service.post_category || 'Nezaradené';
@@ -50,7 +53,7 @@ const Pricelist: React.FC = () => {
         const product: Product = {
             id: parseInt(service._ID, 10),
             name: service.post_title,
-            price: parseFloat(service.post_price),
+            price: service.post_price, // No parseFloat needed, it's already a number
             description: service.post_desc || 'Popis nie je k dispozícii.',
             imageUrl: `https://picsum.photos/seed/${service._ID}/400/400`, // Placeholder image
         };
@@ -74,6 +77,9 @@ const Pricelist: React.FC = () => {
             <h1 className="text-4xl font-serif text-gold mb-8 text-center">Cenník Služieb</h1>
             
             <div className="max-w-4xl mx-auto space-y-12">
+                {Object.keys(groupedServices).length === 0 && !loading && (
+                    <p className="text-center text-brand-light/80">Momentálne nie sú k dispozícii žiadne služby.</p>
+                )}
                 {Object.entries(groupedServices).map(([category, services]) => (
                     <div key={category}>
                         <h2 className="text-3xl font-serif text-gold/90 mb-6 border-b-2 border-gold/20 pb-2">{category}</h2>
@@ -85,7 +91,7 @@ const Pricelist: React.FC = () => {
                                         {service.post_desc && <p className="text-brand-light/70 mt-1" dangerouslySetInnerHTML={{ __html: service.post_desc }}></p>}
                                     </div>
                                     <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0">
-                                        <div className="text-lg font-semibold text-gold whitespace-nowrap">{parseFloat(service.post_price).toFixed(2)} €</div>
+                                        <div className="text-lg font-semibold text-gold whitespace-nowrap">{service.post_price.toFixed(2)} €</div>
                                         {service.post_duration && <div className="text-sm text-brand-light/60">{service.post_duration} min</div>}
                                         <button 
                                             onClick={() => handleAddToCart(service)}
