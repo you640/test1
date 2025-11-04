@@ -57,3 +57,13 @@ export interface ContentIdea {
   platform: 'Instagram' | 'TikTok' | 'Facebook';
   hashtags: string[];
 }
+
+export interface WpService {
+  _ID: string;
+  post_title: string;
+  post_desc: string;
+  post_category: string;
+  post_subcategory: string;
+  post_price: string;
+  post_duration: string;
+}

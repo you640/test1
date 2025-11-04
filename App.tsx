@@ -11,7 +11,7 @@ const Booking = lazy(() => import('./features/booking/Booking'));
 const MyAppointments = lazy(() => import('./features/my-appointments/MyAppointments'));
 const Gallery = lazy(() => import('./features/gallery/Gallery'));
 const Stylists = lazy(() => import('./features/stylists/Stylists'));
-const Products = lazy(() => import('./features/products/Products'));
+const Pricelist = lazy(() => import('./features/products/Products'));
 const Contact = lazy(() => import('./features/contact/Contact'));
 const VirtualTryOn = lazy(() => import('./features/virtual-try-on/VirtualTryOn'));
 
@@ -44,7 +44,7 @@ const App: React.FC = () => {
                                 <Route path="my-appointments" element={<MyAppointments />} />
                                 <Route path="gallery" element={<Gallery />} />
                                 <Route path="stylists" element={<Stylists />} />
-                                <Route path="products" element={<Products />} />
+                                <Route path="pricelist" element={<Pricelist />} />
                                 <Route path="contact" element={<Contact />} />
                                 <Route path="virtual-try-on" element={<VirtualTryOn />} />
                             </Route>

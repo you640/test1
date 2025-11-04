@@ -7,7 +7,7 @@ const navLinks = [
     { to: '/booking', text: 'Rezervácia' },
     { to: '/gallery', text: 'Galéria' },
     { to: '/stylists', text: 'Stylisti' },
-    { to: '/products', text: 'Produkty' },
+    { to: '/pricelist', text: 'Cenník' },
     { to: '/virtual-try-on', text: 'Virtuálny Stylista' },
     { to: '/contact', text: 'Kontakt' },
 ];
@@ -43,7 +43,7 @@ export const ClientHeader: React.FC = () => {
                     <div className="hidden md:flex items-center">
                         <NavLink to="/my-appointments" className="text-brand-light hover:text-gold transition-colors duration-300">Moje Termíny</NavLink>
                         
-                        <NavLink to="/products" className="relative text-brand-light hover:text-gold transition-colors duration-300 ml-6 mr-6" aria-label={`Nákupný košík, ${cartItemCount} položiek`}>
+                        <NavLink to="/pricelist" className="relative text-brand-light hover:text-gold transition-colors duration-300 ml-6 mr-6" aria-label={`Nákupný košík, ${cartItemCount} položiek`}>
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                              {cartItemCount > 0 && (
                                 <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
@@ -79,7 +79,7 @@ export const ClientHeader: React.FC = () => {
                         </NavLink>
                     ))}
                     <NavLink to="/my-appointments" className={linkClass} onClick={() => setIsMenuOpen(false)}>Moje Termíny</NavLink>
-                     <NavLink to="/products" className={linkClass} onClick={() => setIsMenuOpen(false)}>Nákupný Košík ({cartItemCount})</NavLink>
+                     <NavLink to="/pricelist" className={linkClass} onClick={() => setIsMenuOpen(false)}>Nákupný Košík ({cartItemCount})</NavLink>
                     <NavLink to="/dashboard" className="block py-2 px-3 rounded text-center bg-gold text-brand-dark font-semibold mt-2" onClick={() => setIsMenuOpen(false)}>
                         Admin
                     </NavLink>
