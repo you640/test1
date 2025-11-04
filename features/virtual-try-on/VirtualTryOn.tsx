@@ -17,27 +17,37 @@ type CameraStatus = 'initial' | 'loading' | 'active' | 'error';
 type FacingMode = 'user' | 'environment';
 
 // --- KOMPONENTY PRE STAVY ---
-const InitialState: React.FC<{ onStart: () => void }> = ({ onStart }) => (
+const InitialState: React.FC<{ onStart: () => void; isModelLoading: boolean; }> = ({ onStart, isModelLoading }) => (
     <div className="text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-24 w-24 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-        <p className="mt-4 text-brand-light/80">Povoľte prístup ku kamere a začnite.</p>
-        <button onClick={onStart} className="mt-6 bg-gold text-brand-dark font-bold py-2 px-6 rounded-full hover:bg-yellow-400 transition-colors">
-            Spustiť Kameru
-        </button>
+        {isModelLoading ? (
+            <>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gold mx-auto"></div>
+                <p className="mt-4 text-gold">Načítavam AI model...</p>
+            </>
+        ) : (
+            <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-24 w-24 text-gold/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                <p className="mt-4 text-brand-light/80">Povoľte prístup ku kamere a začnite.</p>
+                <button onClick={onStart} className="mt-6 bg-gold text-brand-dark font-bold py-2 px-6 rounded-full hover:bg-yellow-400 transition-colors">
+                    Spustiť Kameru
+                </button>
+            </>
+        )}
     </div>
 );
+
 
 const LoadingState: React.FC = () => (
     <div className="absolute inset-0 bg-brand-dark/50 flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gold"></div>
-        <p className="mt-4 text-gold">Načítavam AI model...</p>
+        <p className="mt-4 text-gold">Spúšťam kameru...</p>
     </div>
 );
 
 const ErrorState: React.FC<{ message: string; onRetry: () => void }> = ({ message, onRetry }) => (
     <div className="text-center p-4">
         <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-16 w-16 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <h3 className="mt-2 text-lg font-medium text-red-400">Chyba Kamery</h3>
+        <h3 className="mt-2 text-lg font-medium text-red-400">Chyba</h3>
         <p className="mt-1 text-sm text-brand-light/80">{message}</p>
         <button onClick={onRetry} className="mt-6 bg-gold text-brand-dark font-semibold py-2 px-4 rounded-md hover:bg-yellow-400 transition-colors">
             Skúsiť znova
@@ -51,6 +61,7 @@ const VirtualTryOn: React.FC = () => {
     const faceLandmarker = useRef<any>(null);
 
     const [cameraStatus, setCameraStatus] = useState<CameraStatus>('initial');
+    const [isModelLoading, setIsModelLoading] = useState(true);
     const [facingMode, setFacingMode] = useState<FacingMode>('user');
     const [error, setError] = useState<string | null>(null);
     const [selectedHairstyleId, setSelectedHairstyleId] = useState<number | null>(null);
@@ -58,35 +69,45 @@ const VirtualTryOn: React.FC = () => {
 
     // --- INICIALIZÁCIA MEDIAPIPE MODELU ---
     useEffect(() => {
-        const createFaceLandmarker = async () => {
+        const initMediaPipe = async () => {
             try {
-                // The vision library is attached to window.tasks.vision
-                const vision = await window.tasks.vision.FilesetResolver.forVisionTasks(
-                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-                );
-                faceLandmarker.current = await window.tasks.vision.FaceLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
-                        delegate: "GPU",
-                    },
-                    outputFaceBlendshapes: false,
-                    outputFacialTransformationMatrixes: false,
-                    runningMode: "VIDEO",
-                    numFaces: 1,
-                });
-                console.log("Face Landmarker created successfully");
+                // Poll for the MediaPipe library to be loaded on the window object
+                if (window.tasks && window.tasks.vision) {
+                    const vision = await window.tasks.vision.FilesetResolver.forVisionTasks(
+                        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+                    );
+                    faceLandmarker.current = await window.tasks.vision.FaceLandmarker.createFromOptions(vision, {
+                        baseOptions: {
+                            modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+                            delegate: "GPU",
+                        },
+                        outputFaceBlendshapes: false,
+                        outputFacialTransformationMatrixes: false,
+                        runningMode: "VIDEO",
+                        numFaces: 1,
+                    });
+                    console.log("Face Landmarker created successfully");
+                    setIsModelLoading(false);
+                } else {
+                    setTimeout(initMediaPipe, 100);
+                }
             } catch (e) {
                 console.error("Failed to create Face Landmarker:", e);
                 setError("Nepodarilo sa načítať AI model pre detekciu tváre.");
                 setCameraStatus('error');
+                setIsModelLoading(false);
             }
         };
-        createFaceLandmarker();
+
+        initMediaPipe();
 
         return () => {
             // Cleanup on unmount
             if (animationFrameId.current) {
                 cancelAnimationFrame(animationFrameId.current);
+            }
+            if (faceLandmarker.current?.close) {
+                faceLandmarker.current.close();
             }
         };
     }, []);
@@ -219,9 +240,9 @@ const VirtualTryOn: React.FC = () => {
                        />
                     )}
                     
-                    {cameraStatus === 'initial' && <InitialState onStart={startCamera} />}
+                    {cameraStatus === 'initial' && <InitialState onStart={startCamera} isModelLoading={isModelLoading} />}
                     {cameraStatus === 'loading' && <LoadingState />}
-                    {cameraStatus === 'error' && error && <ErrorState message={error} onRetry={startCamera} />}
+                    {cameraStatus === 'error' && error && <ErrorState message={error} onRetry={() => window.location.reload()} />}
                 </div>
                 
                  <div className="w-full mt-4 flex justify-center space-x-4">
