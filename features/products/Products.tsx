@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Product, WpService } from '../../types';
 import { useCart } from '../../context/CartContext';
@@ -23,9 +22,11 @@ const Pricelist: React.FC = () => {
                 }
                 const data: WpService[] = await response.json();
 
-                // Make filtering more robust: check for title and that price is a number (not null/undefined)
+                // Filter for published services with a title and price
                 const filteredData = data.filter(service => 
-                    service.post_title && typeof service.post_price === 'number'
+                    service.cct_status === 'publish' &&
+                    service.post_title && 
+                    typeof service.post_price === 'number'
                 );
 
                 const grouped = filteredData.reduce<GroupedServices>((acc, service) => {
@@ -53,9 +54,9 @@ const Pricelist: React.FC = () => {
         const product: Product = {
             id: parseInt(service._ID, 10),
             name: service.post_title,
-            price: service.post_price, // No parseFloat needed, it's already a number
+            price: service.post_price,
             description: service.post_desc || 'Popis nie je k dispozícii.',
-            imageUrl: `https://picsum.photos/seed/${service._ID}/400/400`, // Placeholder image
+            imageUrl: "/placeholder-service.png", // Use specified placeholder
         };
         addToCart(product);
     };
@@ -92,7 +93,7 @@ const Pricelist: React.FC = () => {
                                     </div>
                                     <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0">
                                         <div className="text-lg font-semibold text-gold whitespace-nowrap">{service.post_price.toFixed(2)} €</div>
-                                        {service.post_duration && <div className="text-sm text-brand-light/60">{service.post_duration} min</div>}
+                                        {service.post_duration > 0 && <div className="text-sm text-brand-light/60">{service.post_duration} min</div>}
                                         <button 
                                             onClick={() => handleAddToCart(service)}
                                             className="mt-2 bg-gold/90 text-brand-dark text-sm font-bold py-1 px-3 rounded-md hover:bg-gold transition-colors w-full sm:w-auto"

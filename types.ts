@@ -1,4 +1,3 @@
-
 export interface UserProfile {
   uid: string;
   name: string;
@@ -60,10 +59,15 @@ export interface ContentIdea {
 
 export interface WpService {
   _ID: string;
+  _post_id: string;
   post_title: string;
   post_desc: string;
   post_category: string;
   post_subcategory: string;
-  post_price: number; // Changed from string to number
-  post_duration: number; // Changed from string to number
+  post_price: number;
+  post_duration: number;
+  cct_author_id: string;
+  cct_created: string;
+  cct_modified: string;
+  cct_status: string;
 }
