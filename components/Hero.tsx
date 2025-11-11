@@ -64,11 +64,11 @@ export const Hero: React.FC = () => {
             >
                 <div>
                     <h1 className="text-4xl md:text-6xl font-serif mb-4 animate-fade-in-down tracking-tight">
-                        <span className="text-gold">Vitajte v PAPI HAIR </span>
-                        <span className="text-brand-light">DESIGN STUDIO</span>
+                        <span className="text-gold">PAPI HAIR </span>
+                        <span className="text-brand-light">DESIGN</span>
                     </h1>
-                    <p className="text-lg md:text-xl text-brand-light/90 mb-8 max-w-2xl mx-auto animate-fade-in-up">
-                        Objavte umenie krásnych vlasov v našom exkluzívnom štúdiu.
+                    <p className="text-sm md:text-base text-brand-light uppercase tracking-widest mb-8 max-w-2xl mx-auto animate-fade-in-up">
+                        HAIR SALON & BARBER
                     </p>
                     <PhdButton to="/booking">
                         Rezervovať Termín

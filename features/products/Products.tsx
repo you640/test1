@@ -81,11 +81,12 @@ const Pricelist: React.FC = () => {
                 {Object.keys(groupedServices).length === 0 && !loading && (
                     <p className="text-center text-brand-light/80">Momentálne nie sú k dispozícii žiadne služby.</p>
                 )}
-                {Object.entries(groupedServices).map(([category, services]) => (
+                {/* FIX: Refactored from Object.entries to Object.keys to ensure proper type inference for services array. */}
+                {Object.keys(groupedServices).map(category => (
                     <div key={category}>
                         <h2 className="text-3xl font-serif text-gold/90 mb-6 border-b-2 border-gold/20 pb-2">{category}</h2>
                         <div className="space-y-4">
-                            {services.map(service => (
+                            {groupedServices[category].map(service => (
                                 <div key={service._ID} className="bg-brand-secondary p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div className="flex-1">
                                         <h3 className="text-xl font-bold text-brand-light">{service.post_title}</h3>
