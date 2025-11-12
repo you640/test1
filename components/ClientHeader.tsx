@@ -25,8 +25,9 @@ export const ClientHeader: React.FC = () => {
             <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-20">
                     <div className="flex-shrink-0">
-                        <NavLink to="/" className="text-2xl font-bold font-serif text-gold tracking-wider">
-                            PAPI
+                        <NavLink to="/" className="text-2xl font-bold font-serif tracking-tight whitespace-nowrap">
+                            <span className="text-gold">PAPI HAIR </span>
+                            <span className="text-brand-light">DESIGN</span>
                         </NavLink>
                     </div>
 
