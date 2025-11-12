@@ -1,0 +1,25 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "name": "papi-hair-design-studio",
+  "framework": null,
+  "installCommand": "echo 'Skipping installation'",
+  "buildCommand": "echo 'Skipping build'",
+  "outputDirectory": ".",
+  "rewrites": [
+    {
+      "source": "/((?!api|assets|sw.js|favicon.ico|logo192.png|logo512.png|manifest.json|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" }
+      ]
+    }
+  ]
+}
